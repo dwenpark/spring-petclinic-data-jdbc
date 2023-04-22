@@ -46,3 +46,40 @@ spec:
       volumes:
         - name: logs
           emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petclinic
+  labels:
+    app: petclinic
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: petclinic
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: petclinic-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: petclinic
+            port:
+              number: 8080
